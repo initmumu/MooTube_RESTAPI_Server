@@ -7,10 +7,11 @@ export async function loginController(req, res) {
   const pw = req.body.pw;
 
   const result = await login(id, pw);
-  if (result == 0)
+  if (result.status == 0)
     res.status(200).json({
       result: 0,
       message: "로그인에 성공하였습니다.",
+      token: result.token,
     });
   else {
     res.status(403).json({

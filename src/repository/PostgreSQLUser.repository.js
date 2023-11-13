@@ -2,16 +2,18 @@ import UserRepository from "./UserRepository";
 import { LogPrinter } from "../util/LogPrinter";
 import { Pool } from "pg";
 import User from "../domain/User";
+import dotenv from "dotenv";
+dotenv.config();
 
 class PostgreSQLUserRepository extends UserRepository {
   constructor() {
     super();
     this.pool = new Pool({
-      user: "postgres",
-      host: "host",
-      database: "mootube",
-      password: "password",
-      port: 5433,
+      user: process.env.POSTGRESQL_USER,
+      host: process.env.POSTGRESQL_HOST,
+      database: process.env.POSTGRESQL_DATABASE,
+      password: process.env.POSTGRESQL_PASSWORD,
+      port: process.env.POSTGRESQL_PORT,
     });
   }
 

@@ -1,6 +1,7 @@
 import express from "express";
 import { LogPrinter } from "./util/LogPrinter";
 import userRouter from "./router/user.router";
+import { jwtAuth } from "./service/auth.service";
 
 const HOST = process.argv[3] ? process.argv[3] : "localhost";
 const PORT = process.argv[2] ? process.argv[2] : 3000;

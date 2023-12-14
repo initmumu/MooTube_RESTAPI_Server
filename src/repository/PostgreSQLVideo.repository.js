@@ -1,7 +1,5 @@
-import UserRepository from "./UserRepository";
 import { LogPrinter } from "../util/LogPrinter";
 import { Pool } from "pg";
-import User from "../domain/User";
 import Video from "../domain/Video";
 import dotenv from "dotenv";
 import VideoRepository from "./VideoRepository";
@@ -19,12 +17,72 @@ class PostgreSQLVideoRepository extends VideoRepository {
         });
     }
 
-    findByVideoId(videoId) {
-        throw new Error("Methods of abstract classes must be overridden.");
+    async findByVideoId(videoId) {
+        const selectQuery = `SELECT * FROM public.video WHERE video_id = $1`;
+        const values = [videoId];
+
+        try {
+            const result = await this.pool.query(selectQuery, values);
+            if (result) {
+                LogPrinter.info(`Finding video by video_id is success`);
+                const videoRow = result.rows[0];
+                const videoInfo = new Video(
+                    videoRow.video_id,
+                    videoRow.title,
+                    videoRow.desc,
+                    videoRow.publisher,
+                    videoRow.publish_date,
+                    videoRow.hits,
+                    videoRow.status
+                );
+                return { result: 0, video: videoInfo };
+            } else {
+                LogPrinter.info(`Finding video by video_id is fail`);
+                return { result: 1, message: "fail to find video" };
+            }
+        } catch (err) {
+            LogPrinter.error(err);
+            return {
+                result: 2,
+                message: err,
+            };
+        }
     }
 
-    findByTitle(title) {
-        throw new Error("Methods of abstract classes must be overridden.");
+    async searchVideo(context) {
+        const selectQuery = `SELECT * FROM public.video WHERE title LIKE `;
+    }
+
+    async findByTitle(title) {
+        const selectQuery = `SELECT * FROM public.video WHERE title = $1`;
+        const values = [title];
+
+        try {
+            const result = await this.pool.query(selectQuery, values);
+            if (result) {
+                LogPrinter.info(`Finding video by title is success`);
+                const videoRow = result.rows[0];
+                const videoInfo = new Video(
+                    videoRow.video_id,
+                    videoRow.title,
+                    videoRow.desc,
+                    videoRow.publisher,
+                    videoRow.publishDate,
+                    videoRow.hits,
+                    videoRow.status
+                );
+                return { result: 0, video: videoInfo };
+            } else {
+                LogPrinter.info(`Finding video by title is fail`);
+                return { result: 1, message: "fail to find video" };
+            }
+        } catch (err) {
+            LogPrinter.error(err);
+            return {
+                result: 2,
+                message: err,
+            };
+        }
     }
 
     findByDesc(desc) {
@@ -37,11 +95,33 @@ class PostgreSQLVideoRepository extends VideoRepository {
         try {
             const result = await this.pool.query(insertQuery, values);
             LogPrinter.info(
-                `New video info is successfully upload to postgreSQL ${result}`
+                "New video info is successfully upload to postgreSQL"
             );
             return {
                 result: 0,
                 video_id: result.rows[0].video_id,
+            };
+        } catch (err) {
+            LogPrinter.error(err);
+            return {
+                result: 1,
+                message: err,
+            };
+        }
+    }
+
+    async editVideoInfo(videoId, title, desc) {
+        const updateQuery = `UPDATE public.video SET "title" = $1, "desc" = $2 WHERE video_id = $3;`;
+        const values = [title, desc, videoId];
+        try {
+            await this.pool.query(updateQuery, values);
+            LogPrinter.info(
+                "Editing video info is successfully updated to postgreSQL"
+            );
+            return {
+                result: 0,
+                message:
+                    "Editing video info is successfully updated to postgreSQL",
             };
         } catch (err) {
             LogPrinter.error(err);
